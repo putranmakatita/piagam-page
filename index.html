@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" type="image/png" href="assets/favicon-32.png">
+    <link rel="shortcut icon" type="image/x-icon" href="assets/favicons.ico">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>Piagam</title>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow py-0">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="javascript:void(0)" style="font-size: small;"><b>PIAGAM</b> <br>
+                Kepesertaan</a>
+            <div class="ms-auto mb-2 mb-lg-0 py-0">
+                <a class="nav-link text-dark active py-0" data-bs-toggle="modal" data-bs-target="#exampleModal"
+                    href="javascript:void(0)" style="font-size: x-large;">
+                    <i class="fa-solid fa-floppy-disk"></i>
+                </a>
+
+            </div>
+        </div>
+    </nav>
+    <div class="container-fluid shadow" style="margin-top: 5%;">
+        <img id="imageToDownload" alt="" width="100%" />
+    </div>
+
+    <div class="modal" tabindex="-1" style="transition: 3s;" id="exampleModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Download Piagam</h5>
+                    <button type="button" class="btn-close" id="closeModal" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" id="downloadPDF">as
+                        PDF</button>
+                    <button type="button" class="btn btn-primary" onclick="downloadImage()">as JPG</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+
+    <script>
+        (function readUrl() {
+            const fileName = window.location.href.split('?f=')[1];
+            const img = document.getElementById('imageToDownload');
+            const pdf = document.getElementById('downloadPDF');
+
+            img.src = 'assets/' + fileName + '.jpg';
+            pdf.onclick = () => downloadPDF('assets/' + fileName + '.pdf');
+        })();
+
+        function downloadImage() {
+            const img = document.getElementById('imageToDownload');
+            const close = document.getElementById('closeModal');
+            const imageURL = img.src;
+            const fileName = imageURL.substring(imageURL.lastIndexOf('/') + 1);
+
+            fetch(imageURL)
+                .then(response => response.blob())
+                .then(blob => {
+                    const link = document.createElement('a');
+                    const objectURL = URL.createObjectURL(blob);
+                    link.href = objectURL;
+                    link.download = fileName;
+                    link.click();
+                    URL.revokeObjectURL(objectURL);
+                    close.click();
+                })
+                .catch(err => console.error('Image download failed:', err));
+
+        }
+
+        function downloadPDF(pdfUrl, filename = 'downloaded_pdf.pdf') {
+            const link = document.createElement('a');
+            const close = document.getElementById('closeModal');
+
+            link.href = pdfUrl;
+            link.download = filename;
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            close.click();
+        }
+
+    </script>
+</body>
+
+</html>
