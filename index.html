@@ -53,6 +53,8 @@
         integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
         crossorigin="anonymous"></script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.16.0/pdf-lib.min.js"></script>
+
     <script>
         (function readUrl() {
             const fileName = window.location.href.split('?f=')[1];
@@ -60,7 +62,8 @@
             const pdf = document.getElementById('downloadPDF');
 
             img.src = 'assets/' + fileName + '.jpg';
-            pdf.onclick = () => downloadPDF('assets/' + fileName + '.pdf');
+            // pdf.onclick = () => downloadPDF('assets/' + fileName + '.pdf');
+            pdf.onclick = () => convertToPDF();
         })();
 
         function downloadImage() {
@@ -98,6 +101,43 @@
             close.click();
         }
 
+
+        const {
+            PDFDocument
+        } = PDFLib;
+
+        async function convertToPDF() {
+            const imgElement = document.getElementById('imageToDownload');
+            const imgUrl = imgElement.src;
+            const response = await fetch(imgUrl);
+            const imgBytes = await response.arrayBuffer();
+            const pdfDoc = await PDFDocument.create();
+            const img = await pdfDoc.embedJpg(imgBytes);
+            const page = pdfDoc.addPage([img.width, img.height]);
+
+            page.drawImage(img, {
+                x: 0,
+                y: 0
+            });
+
+            const pdfBytes = await pdfDoc.save();
+
+            downloadConvPDF(pdfBytes, 'piagam_' + Date.now() + '.pdf', "application/pdf");
+        }
+
+        function downloadConvPDF(data, fileName, mimeType) {
+            const blob = new Blob([data], {
+                type: mimeType
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
     </script>
 </body>
 
